@@ -77,6 +77,7 @@ func pullNewsFromGithub(c *gin.Context) {
 		job.CacheJob()
 	}()
 	if err != nil {
+		job.SetErr(err)
 		c.JSON(http.StatusOK, gin.H{
 			"jobid":  job.ID,
 			"status": job.Status,
