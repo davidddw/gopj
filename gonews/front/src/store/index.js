@@ -19,7 +19,10 @@ export default new Vuex.Store({
 		keyword: '',
 		newsTotal: 0,
 		newsPer: 10,
-		newsItems: []
+		newsItems: [],
+		jobId: '',
+		jobStatus: '',
+		show: false,
 	},
 	mutations: {
 		SET_PAGE(state, page) {  // 设置页面
@@ -55,6 +58,31 @@ export default new Vuex.Store({
 			}).catch(function() {
 				console.log('error')
 			})
+		},
+		PULL_REPO(state) {
+			var url = '/api/pull'
+			axios.get(url).then(function(resp) {
+				state.jobId = resp.data.jobid
+				state.jobStatus = resp.data.status
+			}).catch(function() {
+				console.log('error')
+			})
+		},
+		SET_STATUS(state, status) {  // 设置status
+			state.jobStatus = status
+		},
+		SET_STATUS_QUERY(state) {
+			var url = '/api/job/status?id=' + state.jobId
+			console.log(url)
+			axios.get(url).then(function(resp) {
+				state.jobId = resp.data.jobid
+				state.jobStatus = resp.data.status
+			}).catch(function() {
+				console.log('error')
+			})
+		},
+		SET_SHOW(state, show) {  // 设置loading
+			state.show = show
 		}
 	}
 })

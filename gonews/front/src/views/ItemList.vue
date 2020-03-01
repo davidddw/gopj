@@ -1,6 +1,7 @@
 <template>
   <div class="news-view">
     <div class="news-list-nav">
+      <a @click="pullRepo()">Pull From Repo</a> |
       <a v-if="page > 1" @click="changePage(page - 1)">&lt; prev</a>
       <a v-else class="disabled">&lt; prev</a>
       <span>{{ page }}/{{ maxPage }}</span>
@@ -32,7 +33,8 @@ export default {
   data() {
     return {
       transition: "slide-right",
-      type: "news"
+      type: "news",
+      timer: null
     };
   },
   computed: {
@@ -59,7 +61,24 @@ export default {
     changePage(page) {
       this.$store.commit("SET_PAGE", page);
       this.$store.commit("SET_NEWS");
-    }
+    }, 
+    pullRepo() {
+      this.$store.commit("SET_SHOW", true);
+      this.$store.commit("PULL_REPO");
+      this.timer = setInterval(() => { 
+        this.$store.commit("SET_STATUS_QUERY");
+        if (this.$store.state.jobStatus=='finish') {
+          this.clearTimer()
+          this.$store.commit("SET_SHOW", false);
+          this.$store.commit("SET_PAGE", 1);
+          this.$store.commit("SET_NEWS");
+        }
+      }, 2000)
+    },
+    clearTimer() {//清除定时器
+			clearInterval(this.timer);
+			this.timer = null;
+		}
   }
 };
 </script>

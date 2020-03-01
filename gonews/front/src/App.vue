@@ -1,5 +1,14 @@
 <template>
   <div id="app">
+    <VueElementLoading
+        :spinner="spinnerKind"
+        :size="spinnerSize"
+        :duration="spinnerDuration"
+        :color="spinnerColor"
+        :active="show && !fullscreen && !fullscreenGreenBg"
+        :text="text"
+        :textStyle="textStyles[spinnerTextStyle] || {}"
+      />
     <header class="header">
       <nav class="inner">
         <router-link to="/" exact id="logo">
@@ -21,16 +30,57 @@
 </template>
 
 <script>
+import VueElementLoading from 'vue-element-loading'
 export default {
   name: "app",
+  components: {
+    VueElementLoading
+  },
   data() {
     return {
-      keyword: ""
+      keyword: "",
+      text: "",
+      textStyles: {
+          none: {},
+          bold: {'font-weight':'bold'},
+          bigNeonGreen : { 'font-size':'300%', color:'#0F0', 'text-shadow':'0 0 1em #0F0' }
+      },
+      fullscreen: false,
+      fullscreenGreenBg: false,
+      pikachu: false,
+      spinnerKind: 'bar-fade-scale',
+      spinnerColor: '#FF6700',
+      spinnerSize: '40',
+      spinnerDuration: '0.6',
+      spinnerTextStyle: 'none'
     };
   },
   created() {
     this.$store.commit("SET_PAGE", Number(this.$route.params.page || 1));
     this.$store.commit("SET_NEWS");
+  },
+  computed: {
+    show() {
+      return this.$store.state.show;
+    },
+  },
+  methods: {
+    toggleInsideComponentLoader () {
+      this.show = !this.show;
+      this.pikachu = false;
+    },
+    togglePikachuLoader () {
+      this.pikachu = !this.pikachu;
+      this.show = false;
+    },
+    activateFullScreen () {
+      this.fullscreen = true
+      setTimeout(() => { this.fullscreen = false }, 2000)
+    },
+    activateFullScreenGreenBg () {
+      this.fullscreenGreenBg = true
+      setTimeout(() => { this.fullscreenGreenBg = false }, 2000)
+    }
   },
   watch: {
     $route() {
