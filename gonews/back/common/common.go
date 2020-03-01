@@ -1,15 +1,13 @@
 package common
 
 import (
-	"log"
 	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
 
-	"github.com/davidddw/go-common/logger"
-	"github.com/davidddw/gopj/gonews/back/config"
+	"github.com/sirupsen/logrus"
 )
 
 // News news structure
@@ -20,11 +18,14 @@ type News struct {
 	Ctime time.Time
 }
 
-func init() {
-	err := logger.NewLogger("default")
-	if err != nil {
-		log.Fatal(err)
-	}
+var (
+	logger *logrus.Logger
+)
+
+// InitEnv init env variable
+func InitEnv(config *Config) {
+	initRedis(config)
+	logger = LoggerFromConfig(config)
 }
 
 func execute(workpath, path string, args ...string) ([]byte, error) {
@@ -34,15 +35,17 @@ func execute(workpath, path string, args ...string) ([]byte, error) {
 }
 
 // InitDataPuller load data from file and save into redis
-func InitDataPuller() error {
-	dir := config.SysConfig.Common.DataFolder
+// dir E:/tmp/data
+// repo https://github.com/gocn/news.git
+func InitDataPuller(config *Config) error {
+	dir := config.Common.DataFolder
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
 		return err
 	}
 	folderPath, _ := filepath.Abs(dir + "/news")
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
-		out, err1 := execute(dir, "git", "clone", config.SysConfig.Common.Repo)
+		out, err1 := execute(dir, "git", "clone", config.Common.Repo)
 		if err1 != nil {
 			logger.Errorf("%s", "clone failed")
 			logger.Errorf("%s", err)

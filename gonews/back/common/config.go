@@ -1,23 +1,27 @@
-package config
+package common
 
 import (
-	"log"
-
 	"gopkg.in/ini.v1"
 )
 
+// Config config
 type Config struct {
 	Common `ini:"common"`
 	Redis  `ini:"redis"`
 }
 
+// Common config
 type Common struct {
-	DataFolder string `ini:"dataFolder"`
-	Port       int    `ini:"port"`
-	Repo       string `ini:"repo"`
-	Mode       string `ini:"mode"`
+	DataFolder  string `ini:"dataFolder"`
+	Port        int    `ini:"port"`
+	Repo        string `ini:"repo"`
+	Mode        string `ini:"mode"`
+	LogFilePath string `ini:"logFilePath"`
+	LogFileName string `ini:"logFileName"`
+	LogLevel    int    `ini:"logLevel"`
 }
 
+// Redis config
 type Redis struct {
 	Host         string `ini:"host"`
 	DB           int    `ini:"db"`
@@ -25,19 +29,8 @@ type Redis struct {
 	SortedPrefix string `ini:"sortedPrefix"`
 }
 
-// SystemConfig global config
-var SysConfig *Config
-
-func init() {
-	var err error
-	SysConfig, err = Load("config.ini")
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-// Load get config from ini
-func Load(configFileMame string) (*Config, error) {
+// InitConfig read config from file
+func InitConfig(configFileMame string) (*Config, error) {
 	cfg, err := ini.Load(configFileMame)
 	if err != nil {
 		return nil, err

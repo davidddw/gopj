@@ -5,24 +5,24 @@ import (
 	"sync"
 	"time"
 
-	"github.com/davidddw/go-common/logger"
-	"github.com/davidddw/gopj/gonews/back/config"
 	"github.com/go-redis/redis"
 )
 
 var (
-	wg           sync.WaitGroup
-	client       *redis.Client
-	rootKey      string
-	sortedPrefix string
+	wg        sync.WaitGroup
+	client    *redis.Client
+	normalKey string
+	sortedKey string
 )
 
-func init() {
+// InitRedis init redis server from config file
+func initRedis(config *Config) {
 	if client == nil {
-		client = newClient(config.SysConfig.Redis.Host, config.SysConfig.Redis.DB)
+		client = newClient(config.Redis.Host, config.Redis.DB)
 	}
-	rootKey = config.SysConfig.Redis.CachePrefix
-	sortedPrefix = config.SysConfig.Redis.SortedPrefix
+	normalKey = config.Redis.CachePrefix
+	sortedKey = config.Redis.SortedPrefix
+
 }
 
 func newClient(host string, db int) *redis.Client {
@@ -53,7 +53,7 @@ func CacheNews(path string) {
 func SetNewsToCache(cache map[string]interface{}) error {
 	var key1, key2 string
 	if value, ok := cache["ctime"].(string); ok {
-		err := client.SAdd(rootKey, value).Err()
+		err := client.SAdd(normalKey, value).Err()
 		if err != nil {
 			return err
 		}
@@ -61,11 +61,11 @@ func SetNewsToCache(cache map[string]interface{}) error {
 	}
 	if value, ok := cache["id"].(int64); ok {
 		key2 = GenerateKey(value, 8)
-		err := client.SAdd(sortedPrefix, key1+key2).Err()
+		err := client.SAdd(sortedKey, key1+key2).Err()
 		if err != nil {
 			return err
 		}
-		key1 := rootKey + ":" + key1
+		key1 := normalKey + ":" + key1
 		err = client.SAdd(key1, key2).Err()
 		if err != nil {
 			return err
@@ -106,20 +106,20 @@ func ParseData(data string, length int) (string, string) {
 func GetPagedNews(pageNum int64, pageSize int64) ([]map[string]string, int64, error) {
 	start := time.Now()
 	offset := (pageNum - 1) * pageSize
-	sortedKey, err := client.Sort(sortedPrefix, &redis.Sort{Offset: offset, Count: pageSize, Order: "desc"}).Result()
+	sortedKeyStr, err := client.Sort(sortedKey, &redis.Sort{Offset: offset, Count: pageSize, Order: "desc"}).Result()
 	if err != nil {
 		return nil, 0, err
 	}
-	count, err := client.SCard(sortedPrefix).Result()
+	count, err := client.SCard(sortedKey).Result()
 	if err != nil {
 		return nil, 0, err
 	}
 	var newsList []map[string]string
-	for i := 0; i < len(sortedKey); i++ {
-		length := len(sortedKey[i])
+	for i := 0; i < len(sortedKeyStr); i++ {
+		length := len(sortedKeyStr[i])
 		if length != 0 {
-			key1, id := ParseData(sortedKey[i], 8)
-			news, err := GetNewsCache(rootKey + ":" + key1 + ":" + id)
+			key1, id := ParseData(sortedKeyStr[i], 8)
+			news, err := GetNewsCache(normalKey + ":" + key1 + ":" + id)
 			if err != nil {
 				continue
 			}
