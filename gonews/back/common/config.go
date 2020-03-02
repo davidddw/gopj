@@ -7,18 +7,30 @@ import (
 // Config config
 type Config struct {
 	Common `ini:"common"`
+	Server `ini:"server"`
 	Redis  `ini:"redis"`
+	Log    `ini:"log"`
 }
 
 // Common config
 type Common struct {
-	DataFolder  string `ini:"dataFolder"`
-	Port        int    `ini:"port"`
-	Repo        string `ini:"repo"`
-	Mode        string `ini:"mode"`
+	DataFolder string `ini:"dataFolder"`
+	Repo       string `ini:"repo"`
+}
+
+// Server config
+type Server struct {
+	Port       int    `ini:"port"`
+	Mode       string `ini:"mode"`
+	StaticPath string `ini:"staticPath"`
+}
+
+// Server config
+type Log struct {
 	LogFilePath string `ini:"logFilePath"`
 	LogFileName string `ini:"logFileName"`
 	LogLevel    int    `ini:"logLevel"`
+	LogOutput   string `ini:"logOutput"`
 }
 
 // Redis config

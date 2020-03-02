@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"strconv"
 	"sync"
 	"time"
@@ -17,15 +18,17 @@ var (
 
 // StartServ start server at 8080
 func StartServ(config *Config) {
-	gin.SetMode(config.Common.Mode)
+	gin.SetMode(config.Mode)
 	r := gin.Default()
 	r.Use(GinLogger(LoggerFromConfig(config)), gin.Recovery())
 
+	staticPath := config.StaticPath
+
 	//r.LoadHTMLGlob("dist/*.html")        // 添加入口index.html
 	//r.LoadHTMLFiles("dist/*/*")          // 添加资源路径
-	r.Static("/static", "./dist/static")             // 添加资源路径
-	r.StaticFile("/", "dist/index.html")             //前端接口
-	r.StaticFile("/favicon.ico", "dist/favicon.ico") //前端接口
+	r.Static("/static", path.Join(staticPath, "static"))               // 添加资源路径
+	r.StaticFile("/", path.Join(staticPath, "index.html"))             // 前端接口
+	r.StaticFile("/favicon.ico", path.Join(staticPath, "favicon.ico")) // 前端接口
 
 	//配置跨域
 	r.Use(cors.New(cors.Config{
@@ -39,7 +42,7 @@ func StartServ(config *Config) {
 	r.GET("/api/news", getNewsByPage)
 	r.GET("/api/pull", pullNewsFromGithub(config))
 	r.GET("/api/job/status", getJobStatus)
-	r.Run(fmt.Sprintf(":%d", config.Common.Port))
+	r.Run(fmt.Sprintf(":%d", config.Port))
 }
 
 func getNewsByPage(c *gin.Context) {

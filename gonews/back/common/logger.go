@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"path"
@@ -18,8 +19,8 @@ const (
 
 // LoggerFromConfig get logger by filename
 func LoggerFromConfig(config *Config) *logrus.Logger {
-	logFilePath := config.Common.LogFilePath
-	logFileName := config.Common.LogFileName
+	logFilePath := config.LogFilePath
+	logFileName := config.LogFileName
 	// 日志文件
 	fileName := path.Join(logFilePath, logFileName)
 	logger := logrus.New()
@@ -29,8 +30,16 @@ func LoggerFromConfig(config *Config) *logrus.Logger {
 		os.Create(fileName)
 	}
 	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, 0666)
+
 	if err == nil {
-		logger.Out = file
+		//logrus.SetOutput()
+		var out io.Writer
+		if config.LogOutput == "both" {
+			out = io.MultiWriter(file, os.Stdout)
+		} else {
+			out = io.MultiWriter(file)
+		}
+		logger.Out = out
 	} else {
 		logger.Info("打开 " + fileName + " 下的日志文件失败, 使用默认方式显示日志！")
 	}
