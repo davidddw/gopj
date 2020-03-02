@@ -143,7 +143,7 @@ func CacheJob(cache map[string]interface{}) error {
 		if err != nil {
 			return err
 		}
-		key := "jobs-" + value
+		key := "jobs:" + value
 		return client.HMSet(key, cache).Err()
 	}
 	return nil
@@ -151,6 +151,6 @@ func CacheJob(cache map[string]interface{}) error {
 
 // GetJob get job
 func GetJob(id string) (map[string]string, error) {
-	key := "jobs-" + id
+	key := "jobs:" + id
 	return client.HGetAll(key).Result()
 }
