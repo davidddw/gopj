@@ -124,7 +124,7 @@ func (this *ArticleTypeApi) Select(c *gin.Context) {
 	}
 
 	conditions := []bson.M{
-		bson.M{"title": bson.M{"$regex": bson.RegEx{word, "i"}}},
+		bson.M{"title": bson.M{"$regex": bson.RegEx{Pattern: word, Options: "i"}}},
 	}
 
 	if order == "desc" {

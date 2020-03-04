@@ -146,9 +146,9 @@ func (this *ArticleApi) Select(c *gin.Context) {
 
 	if word != "" {
 		if article == "" {
-			conditions["title"] = bson.M{"$regex": bson.RegEx{word, "i"}}
+			conditions["title"] = bson.M{"$regex": bson.RegEx{Pattern: word, Options: "i"}}
 		} else {
-			conditions["chapters.title"] = bson.M{"$regex": bson.RegEx{word, "i"}}
+			conditions["chapters.title"] = bson.M{"$regex": bson.RegEx{Pattern: word, Options: "i"}}
 		}
 	}
 
