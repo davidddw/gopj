@@ -50,7 +50,7 @@ func ParseNews(path string) (newsList []News, err error) {
 	if err != nil {
 		return
 	}
-	reg := regexp.MustCompile(`(?i)#{0,3}\s*GoCN每日新闻\(([\d-]*)\)\n+\D*((.*\n)+?\n)`)
+	reg := regexp.MustCompile(`(?i)#+\s*?GoCN\D*([\d-]*).*\n+\D*((.*\n)+?\n)`)
 	allMatch := reg.FindAllSubmatch(data, -1)
 	for _, item := range allMatch {
 		loc, _ := time.LoadLocation("Local")
