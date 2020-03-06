@@ -24,9 +24,10 @@ require (
 	github.com/qiniu/api.v7 v7.2.5+incompatible
 	github.com/qiniu/x v7.0.8+incompatible // indirect
 	github.com/satori/go.uuid v1.2.0
-	github.com/sirupsen/logrus v1.2.0
+	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/tidwall/gjson v1.5.0
+	go.mongodb.org/mongo-driver v1.3.1
 	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
 	golang.org/x/text v0.3.2
 	gopkg.in/go-playground/validator.v9 v9.29.1
